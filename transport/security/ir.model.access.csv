@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+transport_order_user,transport_order_user,model_transport_order,fleet.group_fleet_user,1,1,0,0
+transport_order_itinerary_user,transport_order_itinerary_user,model_transport_order_itinerary,fleet.group_fleet_user,1,1,0,0
+transport_node_user,transport_node_user,model_transport_node,fleet.group_fleet_user,1,1,0,0
+transport_route_user,transport_route_user,model_transport_route,fleet.group_fleet_user,1,1,0,0
+transport_route_itinerary_user,transport_route_itinerary_user,model_transport_route_itinerary,fleet.group_fleet_user,1,1,0,0
+transport_order_manager,transport_order_manager,model_transport_order,fleet.group_fleet_manager,1,1,1,1
+transport_order_itinerary_manager,transport_order_itinerary_manager,model_transport_order_itinerary,fleet.group_fleet_manager,1,1,1,1
+transport_node_manager,transport_node_manager,model_transport_node,fleet.group_fleet_manager,1,1,1,1
+transport_route_manager,transport_route_manager,model_transport_route,fleet.group_fleet_manager,1,1,1,1
+transport_route_itinerary_manager,transport_route_itinerary_manager,model_transport_route_itinerary,fleet.group_fleet_manager,1,1,1,1

@@ -1,0 +1,17 @@
+
+
+sudo apt-get remove --purge libreoffice*
+sudo apt-get clean
+sudo apt-get autoremove
+
+After having downloaded Apache_OpenOffice_4.0.1_Linux_x86-64_install-deb_en-US.tar.gz
+I did the following :
+tar -zxvf Apache_OpenOffice_4.0.1_Linux_x86_install-deb_en-US.tar.gz
+cd en-US/DEBS
+sudo dpkg -i *.deb
+cd desktop-integration
+dpkg -i *.deb
+
+#find where is uno.py
+# "locate uno.py" returns "/opt/openoffice.org/basis3.4/program/uno.py"
+# add that to python path

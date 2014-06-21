@@ -1,0 +1,28 @@
+sudo pip install paramiko
+sudo pip install pycrypto
+sudo pip install cherypy
+sudo pip install genshi
+
+sudo pip install cdecimal  --allow-external cdecimal
+sudo pip install pyinotify
+sudo pip install xlutils
+sudo apt-get install uuid libdbd-pg-perl
+sudo apt-get install postgresql-contrib
+sudo apt-get install postgresql-server-dev-all
+sudo pip install psycopg2 --upgrade
+sudo pip uninstall django
+sudo pip install https://www.djangoproject.com/download/1.7.b4/tarball/
+
+sudo apt-get install mercurial
+hg clone https://code.google.com/p/bots/
+cd bots
+sudo python setup_tar.py install
+# nano /usr/local/lib/python2.7/dist-packages/bots/admin.py L:19
+
+#sys user for bots deamos
+sudo adduser --system --shell=/bin/bash --home=/opt/bots --group bots
+#db user for bots databases
+sudo su - postgres  -c"createuser --createdb --user postgres --pwprompt pgbots"
+#create db
+sudo su - postgres  -c"createdb -O pgbots bots1"
+

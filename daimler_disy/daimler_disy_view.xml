@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+<!--MAIN MENU-->
+        <menuitem name="Daimler Disy" id="menu_root" sequence="1"/>
+<!--LEFT SIDE MAIN MENU-->        
+        <menuitem name="Daimler Disy" parent="menu_root" id="daimler_disy" sequence="10" />
+
+<!--VEHICEL TRANSPORT ANNOUNCEMENT --> 
+        <record id='vehicle_transport_announcement_form' model='ir.ui.view'>
+            <field name="name">vehicle.transport.announcement.form</field>
+            <field name="model">vehicle.transport.announcement</field>
+            <field name="arch" type="xml">
+                <form string="Vehicle Transport Announcement">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="String">
+                            <group >
+                                <field name="number" />
+                                <field name="date" />
+                                <field name="quantity"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Transport Make">
+                                <field name="transport_make_ids" readonly="1" label="0"/>
+                            </page>
+                            <page string="Transport Request">
+                                <field name="transport_request_ids" readonly="1" label="0"/>
+
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='vehicle_transport_announcement_tree' model='ir.ui.view'>
+            <field name="name">vehicle.transport.announcement.tree</field>
+            <field name="model">vehicle.transport.announcement</field>
+            <field name="arch" type="xml">
+                <tree string="String">
+                    <field name="name" />
+                    <field name="number" />
+                    <field name="date" />
+                    <field name="quantity"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="vehicle_transport_announcement_search" model="ir.ui.view">
+            <field name="name">vehicle.transport.announcement.search</field>
+            <field name="model">vehicle.transport.announcement</field>
+            <field name="arch" type="xml">
+                <search string="String">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='vehicle_transport_announcement_act' model='ir.actions.act_window'>
+            <field name="name">Vehicle Transport Announcement</field>
+            <field name="res_model">vehicle.transport.announcement</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+
+<!--VEHICLE TRANSPORT ANNOUNCEMENT SUB MENU -->
+        <menuitem action="vehicle_transport_announcement_act" id="vehicle_transport_announcement_menu" 
+                  parent="daimler_disy" sequence="10"/>
+
+
+<!--VEHICEL TRANSPORT MAKE -->
+        <record id='vehicle_transport_make_form' model='ir.ui.view'>
+            <field name="name">vehicle.transport.make.form</field>
+            <field name="model">vehicle.transport.make</field>
+            <field name="arch" type="xml">
+                <form string="Vehicle Transport Make">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="String">
+                            <group >
+                                <field name="partner_id" />
+                                <field name="edi_message_type" />
+                                <field name="transport_announcement_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='vehicle_transport_make_tree' model='ir.ui.view'>
+            <field name="name">vehicle.transport.make.tree</field>
+            <field name="model">vehicle.transport.make</field>
+            <field name="arch" type="xml">
+                <tree string="Vehicle Transport Make">
+                    <field name="name" />
+                    <field name="partner_id" />
+                    <field name="edi_message_type" />
+                    <field name="transport_announcement_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="vehicle_transport_make_search" model="ir.ui.view">
+            <field name="name">vehicle.transport.make.search</field>
+            <field name="model">vehicle.transport.make</field>
+            <field name="arch" type="xml">
+                <search string="Vehicle Transport Make">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='vehicle_transport_make_act' model='ir.actions.act_window'>
+            <field name="name">Vehicle Transport Make</field>
+            <field name="res_model">vehicle.transport.make</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+
+<!-- VEHICLE TRANSPORT MAKE SUBMENU-->
+        <menuitem action="vehicle_transport_make_act" id="vehicle_transport_make_menu" 
+                  parent="daimler_disy" sequence="20"/>
+
+<!--VEHICEL TRANSPORT REQUESTS -->
+        <record id='vehicle_transport_requests_form' model='ir.ui.view'>
+            <field name="name">vehicle.transport.requests.form</field>
+            <field name="model">vehicle.transport.requests</field>
+            <field name="arch" type="xml">
+                <form string="Vehicle Transport Requests">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="String">
+                            <group>
+                                <group>
+                                    <field name="transport_announcement_id" />
+                                    <field name="transport_order_id" />
+                                    <field name="vin_number" />
+                                    <field name="previous_node" />
+                                    <field name="receiver_node" />
+                                    <field name="following_node" />
+                                </group>
+                                <group>
+                                    <field name="destination_node" />
+                                    <field name="holds" />
+                                    <field name="departure_date" />
+                                    <field name="departure_time" />
+                                    <field name="transport_mode" />
+                                </group>
+                                <group>
+                                    <field name="arrival_datetime" />
+                                    <field name="dispatch_datetime" />
+                                    <field name="exit_datetime" />
+                                    <field name="bill_of_lading" />
+                                    <field name="carrier_code" />
+                                </group>
+                                <group>
+                                    <field name="order_number" />
+                                    <field name="waybill_number" />
+                                    <field name="cc_identification" />
+                                    <field name="weight" />
+                                    <field name="weight_uom" />
+                                </group>
+                                <group>
+                                    <field name="motor_number" />
+                                    <field name="production_number" />
+                                    <field name="product_group" />
+                                    <field name="vehicle_type_code" />
+                                    <field name="color_lower_text" />
+                                </group>
+                                <group>
+                                    <field name="color_lower_code" />
+                                    <field name="color_upper_text" />
+                                    <field name="color_upper_code" />
+                                    <field name="cust_or_stock_vehicle" />
+                                </group>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Transport Edi Logs">
+                                <field name="transport_edi_log_ids" readonly="1" label="0"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='vehicle_transport_requests_tree' model='ir.ui.view'>
+            <field name="name">vehicle.transport.requests.tree</field>
+            <field name="model">vehicle.transport.requests</field>
+            <field name="arch" type="xml">
+                <tree string="Vehicle Transport Requests">
+                    <field name="name" />
+                    <field name="transport_announcement_id" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="vehicle_transport_requests_search" model="ir.ui.view">
+            <field name="name">vehicle.transport.requests.search</field>
+            <field name="model">vehicle.transport.requests</field>
+            <field name="arch" type="xml">
+                <search string="Vehicle Transport Requests">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='vehicle_transport_request_act' model='ir.actions.act_window'>
+            <field name="name">Vehicle Transport Requests</field>
+            <field name="res_model">vehicle.transport.requests</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+
+<!-- VEHICLE TRANSPORT REQUESTS SUBMENU-->
+        <menuitem action="vehicle_transport_request_act" id="vehicle_transport_request_menu" 
+                  parent="daimler_disy" sequence="30"/>
+
+
+<!--LEFT SIDE LOG MENU-->        
+        <menuitem name="Logs" parent="menu_root" id="logs_main_menu" sequence="20" />
+<!--VEHICEL TRANSPORT EDI LOG -->
+        <record id='vehicle_transport_edi_log_form' model='ir.ui.view'>
+            <field name="name">vehicle.transport.edi.log.form</field>
+            <field name="model">vehicle.transport.edi.log</field>
+            <field name="arch" type="xml">
+                <form string="Vehicle Transport Edi Log">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="String">
+                            <group >
+                                <field name="transport_request_id" />
+                                <field name="raw_message" />
+                                <field name="direction" />
+                                <field name="date" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='vehicle_transport_edi_log_tree' model='ir.ui.view'>
+            <field name="name">vehicle.transport.edi.log.tree</field>
+            <field name="model">vehicle.transport.edi.log</field>
+            <field name="arch" type="xml">
+                <tree string="Vehicle Transport Edi Log">
+                    <field name="name" />
+                    <field name="transport_request_id" />
+                    <field name="raw_message" />
+                    <field name="direction" />
+                    <field name="date" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="vehicle_transport_edi_log_search" model="ir.ui.view">
+            <field name="name">vehicle.transport.edi.log.search</field>
+            <field name="model">vehicle.transport.edi.log</field>
+            <field name="arch" type="xml">
+                <search string="Vehicle Transport Edi Log">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='vehicle_transport_edi_log_act' model='ir.actions.act_window'>
+            <field name="name">Vehicle Transport Edi Log</field>
+            <field name="res_model">vehicle.transport.edi.log</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+
+<!-- VEHICLE TRANSPORT EDI LOG SUBMENU-->
+        <menuitem action="vehicle_transport_edi_log_act" id="vvehicle_transport_edi_log_menu" 
+                  parent="logs_main_menu" sequence="10"/>
+
+    </data>
+</openerp>

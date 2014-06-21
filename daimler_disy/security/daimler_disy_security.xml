@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="0">
+            <record model="ir.module.category" id="module_daimler_disy_category">
+                <field name="name">Daimler Disy</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="group_daimler_disy_user" model="res.groups">
+                <field name="name">User</field>
+                <field name="category_id" ref="module_daimler_disy_category"/>
+            </record>
+            <record id="group_daimler_disy_manager" model="res.groups">
+                <field name="name">Manager</field>
+                <field name="implied_ids" eval="[(4, ref('group_daimler_disy_user'))]"/>
+                <field name="category_id" ref="module_daimler_disy_category"/>
+                <field name="users" eval="[(4, ref('base.user_root'))]"/>
+            </record>
+    </data>    
+</openerp>

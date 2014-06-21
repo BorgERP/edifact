@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+<!--MAIN MENU-->
+        <menuitem name="Trucking" id="menu_root" sequence="111"/>
+<!--LEFT SIDE MAIN MENU-->        
+        <menuitem name="Trucking" parent="menu_root" id="trucking" sequence="10" />
+
+<!--TRUCK TRAILERS --> 
+        <record id='truck_trailer_form' model='ir.ui.view'>
+            <field name="name">truck.trailer.form</field>
+            <field name="model">truck.trailer</field>
+            <field name="arch" type="xml">
+                 <form string="Truck Trailer">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="General Properties">
+                            <group >
+                                <field name="license_plate" />
+                                <field name="vin_sn" />
+                                <field name="max_load" />
+                            </group>
+                        </group>
+                        <notebook>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='truck_trailer_tree' model='ir.ui.view'>
+            <field name="name">truck.trailer.tree</field>
+            <field name="model">truck.trailer</field>
+            <field name="arch" type="xml">
+                <tree string="Truck Trailer">
+                    <field name="name" />
+                    <field name="license_plate" />
+                    <field name="vin_sn" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="truck_trailer_search" model="ir.ui.view">
+            <field name="name">truck.trailer.search</field>
+            <field name="model">truck.trailer</field>
+            <field name="arch" type="xml">
+                <search string="Truck Trailer">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='truck_trailer_act' model='ir.actions.act_window'>
+            <field name="name">Truck Trailer</field>
+            <field name="res_model">truck.trailer</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+<!-- TRUCK TRAILER SUBMENU-->
+        <menuitem action="truck_trailer_act" id="truck_trailer_menu" 
+                  parent="trucking" sequence="10"/>
+
+
+
+<!--LEFT SIDE MAIN MENU-->        
+        <menuitem name="Truck Trailer Combo" parent="menu_root" id="truck_trailer_combo" sequence="20" />
+
+<!--TRUCK TRAILERS --> 
+        <record id='truck_trailer_combo_form' model='ir.ui.view'>
+            <field name="name">truck.trailer.combo.form</field>
+            <field name="model">truck.trailer.combo</field>
+            <field name="arch" type="xml">
+                 <form string="Truck Trailer Combo">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="General Properties">
+                            <group >
+                                <field name="vehicle_id" />
+                                <field name="trailer_id" />
+                                <field name="active" />
+                            </group>
+                        </group>
+                        <notebook>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='truck_trailer_combo_tree' model='ir.ui.view'>
+            <field name="name">truck.trailer.combo.tree</field>
+            <field name="model">truck.trailer.combo</field>
+            <field name="arch" type="xml">
+                <tree string="'Truck Trailer Combo">
+                    <field name="name" />
+                    <field name="vehicle_id" />
+                    <field name="trailer_id" />
+                    <field name="active" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="truck_trailer_combo_search" model="ir.ui.view">
+            <field name="name">truck.trailer.combo.search</field>
+            <field name="model">truck.trailer.combo</field>
+            <field name="arch" type="xml">
+                <search string="Truck Trailer Combo">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='truck_trailer_combo_act' model='ir.actions.act_window'>
+            <field name="name">Truck Trailer Combo</field>
+            <field name="res_model">truck.trailer.combo</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+<!-- TRUCK TRAILER SUBMENU-->
+        <menuitem action="truck_trailer_combo_act" id="truck_trailer_combo_menu" 
+                  parent="truck_trailer_combo" sequence="10"/>
+    
+    
+    
+<!--FLEET VEHICLE INHERIT-->    
+        <record id='fleet_vehicle_form_trucking' model='ir.ui.view'>
+            <field name="name">fleet.vehicle.form</field>
+            <field name="model">fleet.vehicle</field>
+            <field name="inherit_id" ref="fleet.fleet_vehicle_form"/>
+            <field name="arch" type="xml">
+                <field name="color" position="after">
+                    <field name="max_load" />
+                    <field name="truck_type" />
+                </field>
+            </field>
+        </record>    
+    </data>
+</openerp>

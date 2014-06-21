@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+<!--MAIN MENU-->
+        <menuitem name="Transport" id="menu_root" sequence="112"/>
+<!--LEFT SIDE MAIN MENU-->        
+        <menuitem name="Transport Order" parent="menu_root" id="transport_order" sequence="10" />
+
+<!--TRANSPORT ORDER --> 
+        <record id='transport_order_form' model='ir.ui.view'>
+            <field name="name">transport.order.form</field>
+            <field name="model">transport.order</field>
+            <field name="arch" type="xml">
+                 <form string="Transport Order">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="Transport Order">
+                            <group>
+                                <field name="truck_trailer_combo_id" />
+                                <field name="main_driver_id" />
+                                <field name="fleet_vehicle" />
+                                <field name="truck_trailer" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Other Drivers">
+                                <field name="driver_ids" label="0"/>
+                            </page>
+                            <page string="Itinerary">
+                                <field name="itinerary_ids" label="0"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='transport_order_tree' model='ir.ui.view'>
+            <field name="name">transport.order.tree</field>
+            <field name="model">transport.order</field>
+            <field name="arch" type="xml">
+                <tree string="Transport Order">
+                    <field name="name" />
+                    <field name="truck_trailer_combo_id" />
+                    <field name="main_driver_id" />
+                    <field name="fleet_vehicle" />
+                    <field name="truck_trailer" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="transport_order_search" model="ir.ui.view">
+            <field name="name">transport.order.search</field>
+            <field name="model">transport.order</field>
+            <field name="arch" type="xml">
+                <search string="Transport Order">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='transport_order_act' model='ir.actions.act_window'>
+            <field name="name">Transport Order</field>
+            <field name="res_model">transport.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+<!-- TRANSPORT ORDER SUBMENU-->
+        <menuitem action="transport_order_act" id="transport_order_menu" 
+                  parent="transport_order" sequence="10"/>
+
+
+<!--TRANSPORT ORDER ITINERARY--> 
+        <record id='transport_order_itinerary_form' model='ir.ui.view'>
+            <field name="name">transport.order.itinerary.form</field>
+            <field name="model">transport.order.itinerary</field>
+            <field name="arch" type="xml">
+                 <form string="Transport Order Itinerary">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="Transport Order Itinerary">
+                            <group>
+                                <field name="sequence" />
+                                <field name="transport_order_id" />
+                                <field name="source_node" />
+                                <field name="destination_node" />
+                            </group>
+                            <group>
+                                <field name="arrival_datetime"/>
+                                <field name="exit_datetime"/>
+                                <field name="planned_arrival_datetime"/>
+                                <field name="planned_exit_datetime"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='transport_order_itinerary_tree' model='ir.ui.view'>
+            <field name="name">transport.order.itinerary.tree</field>
+            <field name="model">transport.order.itinerary</field>
+            <field name="arch" type="xml">
+                <tree string="Transport Order Itinerary">
+                    <field name="name" />
+                    <field name="sequence" />
+                    <field name="source_node" />
+                    <field name="destination_node" />
+                    <field name="arrival_datetime"/>
+                    <field name="exit_datetime"/>
+                    <field name="planned_arrival_datetime"/>
+                    <field name="planned_exit_datetime"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="transport_order_itinerary_search" model="ir.ui.view">
+            <field name="name">transport.order.itinerary.search</field>
+            <field name="model">transport.order.itinerary</field>
+            <field name="arch" type="xml">
+                <search string="Transport Order Itinerary">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='transport_order_itinerary_act' model='ir.actions.act_window'>
+            <field name="name">Transport Order Itinerary</field>
+            <field name="res_model">transport.order.itinerary</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+<!-- TRANSPORT ORDER ITINERARY SUBMENU-->
+        <menuitem action="transport_order_itinerary_act" id="transport_order_itinerary_menu" 
+                  parent="transport_order" sequence="20"/>
+    </data>
+</openerp>

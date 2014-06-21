@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+     
+        <menuitem name="Transport Route" parent="menu_root" id="transport_route" sequence="20" />
+
+<!--TRANSPORT ROUTE --> 
+        <record id='transport_route_form' model='ir.ui.view'>
+            <field name="name">transport.route.form</field>
+            <field name="model">transport.route</field>
+            <field name="arch" type="xml">
+                 <form string="Transport Route">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="Transport Order">
+                            <group>
+                                <field name="source_node" />
+                                <field name="destination_node" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Itinerary">
+                                <field name="itinerary_ids" label="0"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='transport_route_tree' model='ir.ui.view'>
+            <field name="name">transport.route.tree</field>
+            <field name="model">transport.route</field>
+            <field name="arch" type="xml">
+                <tree string="Transport Route">
+                    <field name="name" />
+                    <field name="source_node" />
+                    <field name="destination_node" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="transport_route_search" model="ir.ui.view">
+            <field name="name">transport.route.search</field>
+            <field name="model">transport.route</field>
+            <field name="arch" type="xml">
+                <search string="Transport Route">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='transport_route_act' model='ir.actions.act_window'>
+            <field name="name">Transport Route</field>
+            <field name="res_model">transport.route</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+<!-- TRANSPORT ROUTE SUBMENU-->
+        <menuitem action="transport_route_act" id="transport_route_menu" 
+                  parent="transport_route" sequence="10"/>
+
+
+<!--TRANSPORT ROUTE ITINERARY--> 
+        <record id='transport_route_itinerary_form' model='ir.ui.view'>
+            <field name="name">transport.route.itinerary.form</field>
+            <field name="model">transport.route.itinerary</field>
+            <field name="arch" type="xml">
+                 <form string="Transport Route Itinerary">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="Transport Order Itinerary">
+                            <group>
+                                <field name="sequence" />
+                                <field name="transport_route_id" />
+                                <field name="source_node" />
+                                <field name="destination_node" />
+                            </group>
+                            <group>
+                                <field name="arrival_datetime"/>
+                                <field name="exit_datetime"/>
+                                <field name="planned_arrival_datetime"/>
+                                <field name="planned_exit_datetime"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='transport_route_itinerary_tree' model='ir.ui.view'>
+            <field name="name">transport.route.itinerary.tree</field>
+            <field name="model">transport.route.itinerary</field>
+            <field name="arch" type="xml">
+                <tree string="Transport Route Itinerary">
+                    <field name="name" />
+                    <field name="sequence" />
+                    <field name="source_node" />
+                    <field name="destination_node" />
+                    <field name="arrival_datetime"/>
+                    <field name="exit_datetime"/>
+                    <field name="planned_arrival_datetime"/>
+                    <field name="planned_exit_datetime"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="transport_route_itinerary_search" model="ir.ui.view">
+            <field name="name">transport.route.itinerary.search</field>
+            <field name="model">transport.route.itinerary</field>
+            <field name="arch" type="xml">
+                <search string="Transport Route Itinerary">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='transport_route_itinerary_act' model='ir.actions.act_window'>
+            <field name="name">Transport Route Itinerary</field>
+            <field name="res_model">transport.route.itinerary</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+<!-- TRANSPORT ORDER ITINERARY SUBMENU-->
+        <menuitem action="transport_route_itinerary_act" id="transport_route_itinerary_menu" 
+                  parent="transport_route" sequence="20"/>
+                  
+<!--NODES-->
+<menuitem name="Config" parent="menu_root" id="transport_config" sequence="500" />
+
+<!--TRANSPORT ROUTE --> 
+        <record id='transport_node_form' model='ir.ui.view'>
+            <field name="name">transport.node.form</field>
+            <field name="model">transport.node</field>
+            <field name="arch" type="xml">
+                 <form string="Transport Node">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" class="oe_inline" />
+                            </h1>
+                        </div>
+                        <group col="2" string="Transport Node">
+                            <group>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id='transport_node_tree' model='ir.ui.view'>
+            <field name="name">transport.node.tree</field>
+            <field name="model">transport.node</field>
+            <field name="arch" type="xml">
+                <tree string="Transport Node">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="transport_node_search" model="ir.ui.view">
+            <field name="name">transport.node.search</field>
+            <field name="model">transport.node</field>
+            <field name="arch" type="xml">
+                <search string="Transport Node">
+                    <field name="name" filter_domain="[('name','ilike',self)]" string="Name"/>
+                    <group expand="1" string="Group By...">
+                    </group>
+               </search>
+            </field>
+        </record>      
+
+        <record id='transport_node_act' model='ir.actions.act_window'>
+            <field name="name">Transport Node</field>
+            <field name="res_model">transport.node</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+              </p>
+              <p></p>
+              <p></p>
+            </field>
+        </record>
+<!-- TRANSPORT NODE SUBMENU-->
+        <menuitem action="transport_node_act" id="transport_node_menu" 
+                  parent="transport_config" sequence="10"/>
+    </data>
+</openerp>

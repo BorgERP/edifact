@@ -1,0 +1,370 @@
+=== modified file 'bin/osv/expression.py'
+--- bin/osv/expression.py	2011-01-17 08:41:08 +0000
++++ bin/osv/expression.py	2011-10-07 17:11:08 +0000
+@@ -20,10 +20,26 @@
+ #
+ ##############################################################################
+ 
+-from tools import flatten, reverse_enumerate
++from tools import flatten, reverse_enumerate, config
+ import fields
+ 
+ 
++def _m2o_cmp(a, b):
++    if a is False:
++        if b:
++            return -1
++        return 0
++    else:
++        if not b:
++            return 1
++        elif isinstance(b, (int, long)):
++            return cmp(a[0], b)
++        elif isinstance(b, basestring):
++            return cmp(a[1], b)
++        else:
++            # Arbitrary: unknown b is greater than all record values
++            return -1
++
+ class expression(object):
+     """
+     parse a domain expression
+@@ -32,6 +48,41 @@
+     For more info: http://christophe-simonis-at-tiny.blogspot.com/2008/08/new-new-domain-notation.html
+     """
+ 
++    FALLBACK_OPS = {'=': lambda a, b: bool(a == b),
++            '!=': lambda a, b: bool(a != b),
++            '<>': lambda a, b: bool(a != b),
++            '<=': lambda a, b: bool(a <= b),
++            '<': lambda a, b: bool(a < b),
++            '>': lambda a, b: bool(a > b),
++            '>=': lambda a, b: bool(a >= b),
++            '=?': lambda a, b: b is None or b is False or bool(a == b),
++            #'=like': lambda a, b: , need regexp?
++            #'=ilike': lambda a, b: ,
++            'like': lambda a, b: bool(b in a),
++            'not like': lambda a, b: bool(b not in a),
++            'ilike': lambda a, b: (not b) or (a and bool(b.lower() in a.lower())),
++            'not ilike': lambda a, b: b and ((not a) or bool(b.lower() not in a.lower())),
++            'in': lambda a, b: bool(a in b),
++            'not in': lambda a, b: bool(a not in b),
++            }
++
++    FALLBACK_OPS_M2O = {'=': lambda a, b: _m2o_cmp(a,b) == 0,
++            '!=': _m2o_cmp ,
++            '<>': _m2o_cmp,
++            '<=': lambda a, b: _m2o_cmp(a,b) <= 0,
++            '<': lambda a, b: _m2o_cmp(a, b) < 0,
++            '>': lambda a, b: _m2o_cmp(a, b) > 0,
++            '>=': lambda a, b: _m2o_cmp(a, b) >= 0,
++            '=?': lambda a, b: b is None or b is False or _m2o_cmp(a, b) == 0,
++            #'=like': lambda a, b: , need regexp?
++            #'=ilike': lambda a, b: ,
++            'like': lambda a, b: (not b) or (a and bool(b in a[1])),
++            'not like': lambda a, b: b and ((not a) or (b not in a[1])),
++            'ilike': lambda a, b: (not b) or (a and bool(b.lower() in a[1].lower())),
++            'not ilike': lambda a, b: b and ((not a) or bool(b.lower() not in a[1].lower())),
++            'in': lambda a, b: a and bool(a[1] in b),
++            'not in': lambda a, b: (not a) or bool(a[1] not in b),
++            }
+     def _is_operator(self, element):
+         return isinstance(element, (str, unicode)) and element in ['&', '|', '!']
+ 
+@@ -162,11 +213,67 @@
+             if field._properties and not field.store:
+                 # this is a function field that is not stored
+                 if not field._fnct_search:
+-                    # the function field doesn't provide a search function and doesn't store
+-                    # values in the database, so we must ignore it : we generate a dummy leaf
+-                    self.__exp[i] = self.__DUMMY_LEAF
++                    do_fallback = None
++                    if hasattr(table, '_fallback_search'):
++                        do_fallback = table._fallback_search
++                    else:
++                        do_fallback = config.get_misc('orm', 'fallback_search', None)
++                    if do_fallback is None:
++                        # the function field doesn't provide a search function and doesn't store
++                        # values in the database, so we must ignore it : we generate a dummy leaf
++                        self.__exp[i] = self.__DUMMY_LEAF
++                    elif do_fallback:
++                        # Do the slow fallback.
++                        # Try to see if the expression so far is a straight (ANDed)
++                        # combination. In that case, we can restrict the query
++                        if field._type == 'many2one':
++                            op_fn = self.FALLBACK_OPS_M2O.get(operator, None)
++                        else:
++                            op_fn = self.FALLBACK_OPS.get(operator, None)
++                        if not op_fn:
++                            raise ValueError('Cannot fallback with operator "%s" !' % operator)
++                        e_so_far = self.__exp[:i]
++                        for e in e_so_far:
++                            if not self._is_leaf(e, internal=True):
++                                e_so_far = []
++                                break
++                        ids_so_far = table.search(cr, uid, e_so_far, context=context)
++                        if not ids_so_far:
++                            self.__exp[i] = ( 'id', '=', 0 )
++                        else:
++                            ids2 = []
++                            if field._multi:
++                                fget_name = [fargs[0],]
++                            else:
++                                fget_name = fargs[0]
++                            for res_id, rval in field.get(cr, table, ids_so_far,
++                                                        name=fget_name, user=uid,
++                                                        context=context).items():
++                                if field._multi:
++                                    rval = rval.get(fargs[0], None)
++                                if rval is None or rval is False:
++                                    pass
++                                elif field._type == 'integer':
++                                    # workaround the str() of fields.function.get() :(
++                                    rval = int(rval)
++                                elif field._type == 'float':
++                                    assert isinstance(rval, float), "%s: %r" %(type(rval), rval)
++                                    if field.digits:
++                                        rval = round(rval, field.digits[1])
++
++                                # TODO: relational fields don't work here, must implement
++                                # special operators between their (id, name) and right
++
++                                if op_fn(rval, right):
++                                    ids2.append(res_id)
++                            self.__exp[i] = ( 'id', 'in', ids2 )
++                    else:
++                        raise NotImplementedError("Cannot compute %s.%s field for filtering" % \
++                                    (table._name, left))
+                 else:
+                     subexp = field.search(cr, uid, table, left, [self.__exp[i]], context=context)
++                    # Reminder: the field.search() API returns an expression, not a dataset,
++                    # which means that [] => True clause
+                     if not subexp:
+                         self.__exp[i] = self.__DUMMY_LEAF
+                     else:
+
+=== modified file 'bin/osv/orm.py'
+--- bin/osv/orm.py	2011-06-20 11:12:35 +0000
++++ bin/osv/orm.py	2011-10-10 19:48:15 +0000
+@@ -86,6 +86,52 @@
+         self.value = value
+         self.args = (name, value)
+ 
++class pythonOrderBy(list):
++    """ Placeholder class for _generate_order_by() requesting python sorting
++    """
++
++    def get_sort_key(self):
++        """ returns a function to use in sort(key=...)
++        """
++        if len(self) != 1:
++            raise NotImplementedError("Cannot sort by: %s" % ','.join(self))
++
++        _getters = []
++        for x in [ x.split(' ', 1)[0] for x in self]:
++            if x.endswith(':'):
++                _getters.append(lambda k: (k[x[:-1]] and k[x[:-1]][1]) or None) # the visual string of m2o
++            else:
++                _getters.append(lambda k: k[x])
++        def sort_key(k):
++            return tuple([ g(k) for g in _getters])
++        return sort_key
++
++    def get_fields(self):
++        """Return the field components of this order-by list
++        """
++        def _clean(x):
++            x = x.split(' ',1)[0]
++            if x.endswith(':'):
++                x = x[:-1]
++            return x
++        return map(_clean, self)
++
++    def get_direction(self):
++        """ returns the order direction
++            True if ascending (default)
++        """
++        ascending = None
++        for x in self:
++            if ' ' in x:
++                adir = (x.split(' ', 1)[1].lower() != 'desc' )
++            else:
++                adir = True
++            if ascending is None:
++                ascending = adir
++            elif ascending != adir:
++                raise NotImplementedError("Cannot use multiple order directions on python sorting!")
++        return ascending
++
+ class BrowseRecordError(Exception):
+     pass
+ 
+@@ -1076,6 +1122,12 @@
+         for parent in self._inherits:
+             res.update(self.pool.get(parent).fields_get(cr, user, allfields, context))
+ 
++        all_selectable = False
++        if getattr(self, '_fallback_search', False) == True:
++            all_selectable = True
++        elif config.get_misc('orm', 'fallback_search', None) == True:
++            all_selectable = True
++
+         if self._columns.keys():
+             for f in self._columns.keys():
+                 field_col = self._columns[f]
+@@ -1137,6 +1189,9 @@
+                     res[f]['relation'] = field_col._obj
+                     res[f]['domain'] = field_col._domain
+                     res[f]['context'] = field_col._context
++                
++                if all_selectable:
++                    res[f]['selectable'] = True
+         else:
+             #TODO : read the fields from the database
+             pass
+@@ -2116,6 +2171,17 @@
+         return id in self.datas
+ 
+ class orm(orm_template):
++    """ ORM for regular, database-stored models
++
++        @attribute _fallback_search enables *slow*, fallback search for those
++                function fields that do not provide a _fnct_search() .
++                Use with care, as this may perform a read() of the full dataset
++                of that model, in order to compute the search condition.
++                Takes 3 values:
++                    None    the default 'ignore' behavior,
++                    True    use the slow method
++                    False   stop and raise an exception on those fields
++    """
+     _sql_constraints = []
+     _table = None
+     _protected = ['read', 'write', 'create', 'default_get', 'perm_read', 'unlink', 'fields_get', 'fields_view_get', 'search', 'name_get', 'distinct_field_get', 'name_search', 'copy', 'import_data', 'search_count', 'exists']
+@@ -2330,7 +2396,7 @@
+                 pass
+             if not val_id:
+                 raise except_orm(_('ValidateError'),
+-                                 _('Invalid value for reference field "%s" (last part must be a non-zero integer): "%s"') % (field, value))
++                                 _('Invalid value for reference field "%s" of table "%s" (last part must be a non-zero integer): "%s"') % (field, self._table, value))
+             val = val_model
+         else:
+             val = value
+@@ -2339,8 +2405,10 @@
+                 return
+         elif val in dict(self._columns[field].selection(self, cr, uid, context=context)):
+             return
++        import sys
++	print >> sys.stderr,'check_sel context',context
+         raise except_orm(_('ValidateError'),
+-                         _('The value "%s" for the field "%s" is not in the selection') % (value, field))
++			_('The value "%s" for the field "%s" of table "%s" is not in the selection') % (value, field, self._table))
+ 
+     def _check_removed_columns(self, cr, log=False):
+         # iterate on the database columns to drop the NOT NULL constraints
+@@ -3961,6 +4029,7 @@
+         order_by_clause = self._order
+         if order_spec:
+             order_by_elements = []
++            python_order = False
+             self._check_qorder(order_spec)
+             for order_part in order_spec.split(','):
+                 order_split = order_part.strip().split(' ')
+@@ -3973,25 +4042,63 @@
+                     order_column = self._columns[order_field]
+                     if order_column._classic_read:
+                         inner_clause = '"%s"."%s"' % (self._table, order_field)
+-                    elif order_column._type == 'many2one':
++                    elif order_column._type == 'many2one' \
++                            and (order_column._classic_write \
++                                or getattr(order_column, 'store', False)):
+                         inner_clause = self._generate_m2o_order_by(order_field, query)
+                     else:
+-                        continue # ignore non-readable or "non-joinable" fields
++                        do_fallback = None
++                        if hasattr(self, '_fallback_search'):
++                            do_fallback = self._fallback_search
++                        else:
++                            do_fallback = config.get_misc('orm', 'fallback_search', None)
++                        if do_fallback is None:
++                            continue # ignore non-readable or "non-joinable" fields
++                        elif do_fallback is True:
++                            inner_clause = order_field
++                            if order_column._type in ('many2one',):
++                                inner_clause += ':'
++                            python_order = True
++                        else:
++                            raise except_orm(_('Error!'), 
++                                    _('Object model %s does not support order by function field "%s"!') % \
++                                     (self._name, order_field))
+                 elif order_field in self._inherit_fields:
+                     parent_obj = self.pool.get(self._inherit_fields[order_field][0])
+                     order_column = parent_obj._columns[order_field]
+                     if order_column._classic_read:
+                         inner_clause = self._inherits_join_calc(order_field, query)
+-                    elif order_column._type == 'many2one':
++                    elif order_column._type == 'many2one' \
++                            and (order_column._classic_write \
++                                or getattr(order_column, 'store', False)):
+                         inner_clause = self._generate_m2o_order_by(order_field, query)
+                     else:
+-                        continue # ignore non-readable or "non-joinable" fields
++                        do_fallback = None
++                        if hasattr(self, '_fallback_search'):
++                            do_fallback = self._fallback_search
++                        elif hasattr(parent_obj, '_fallback_search'):
++                            do_fallback = parent_obj._fallback_search
++                        else:
++                            do_fallback = config.get_misc('orm', 'fallback_search', None)
++                        if do_fallback is None:
++                            continue # ignore non-readable or "non-joinable" fields
++                        elif do_fallback is True:
++                            inner_clause = order_field
++                            if order_column._type in ('many2one',):
++                                inner_clause += ':'
++                            python_order = True
++                        else:
++                            raise except_orm(_('Error!'),
++                                    _('Object model %s does not support order by function field "%s"!') % \
++                                     (self._name, order_field))
+                 if inner_clause:
+                     if isinstance(inner_clause, list):
+                         for clause in inner_clause:
+                             order_by_elements.append("%s %s" % (clause, order_direction))
+                     else:
+                         order_by_elements.append("%s %s" % (inner_clause, order_direction))
++            if python_order and order_by_elements:
++                return pythonOrderBy(order_by_elements)
+             if order_by_elements:
+                 order_by_clause = ",".join(order_by_elements)
+ 
+@@ -4024,9 +4131,26 @@
+             cr.execute('SELECT count("%s".id) FROM ' % self._table + from_clause + where_str + limit_str + offset_str, where_clause_params)
+             res = cr.fetchall()
+             return res[0][0]
+-        cr.execute('SELECT "%s".id FROM ' % self._table + from_clause + where_str + order_by + limit_str + offset_str, where_clause_params)
+-        res = cr.fetchall()
+-        return [x[0] for x in res]
++        elif isinstance(order_by, pythonOrderBy):
++            # Fall back to pythonic sorting (+ offset, limit)
++            cr.execute('SELECT "%s".id FROM ' % self._table + from_clause +
++                    where_str, # no offset or limit
++                    where_clause_params)
++            res = cr.fetchall()
++            data_res = self.read(cr, user, [x[0] for x in res],
++                        fields=order_by.get_fields(), context=context)
++            data_res.sort(key=order_by.get_sort_key(), reverse=not order_by.get_direction())
++            if offset:
++                data_res = data_res[offset:]
++            if limit:
++                data_res = data_res[:limit]
++            return [x['id'] for x in data_res]
++        else:
++            cr.execute('SELECT "%s".id FROM ' % self._table + from_clause +
++                    where_str + order_by + limit_str + offset_str, 
++                    where_clause_params)
++            res = cr.fetchall()
++            return [x[0] for x in res]
+ 
+     # returns the different values ever entered for one field
+     # this is used, for example, in the client when the user hits enter on
+

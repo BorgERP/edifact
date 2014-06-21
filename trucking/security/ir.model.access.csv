@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+truck_trailer_user,truck_trailer_user,model_truck_trailer,fleet.group_fleet_user,1,1,0,0
+truck_trailer_combo_user,truck_trailer_combo_user,model_truck_trailer,fleet.group_fleet_user,1,1,0,0
+truck_trailer_manager,truck_trailer_manager,model_truck_trailer,fleet.group_fleet_manager,1,1,1,1
+truck_trailer_combo_manager,truck_trailer_combo_manager,model_truck_trailer,fleet.group_fleet_manager,1,1,1,1

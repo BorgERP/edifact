@@ -1,0 +1,30 @@
+=== modified file 'bin/widget_search/custom_filter.py'
+--- bin/widget_search/custom_filter.py	2011-09-16 11:49:53 +0000
++++ bin/widget_search/custom_filter.py	2011-10-16 18:15:54 +0000
+@@ -101,8 +101,6 @@
+             operator = self.op_selection[self.combo_op.get_active_text()]
+             right_text =  self.right_text.get_text() or False
+ 
+-            if operator in ['not ilike','<>', 'not in'] and field_type != 'boolean':
+-                false_value_domain = ['|', (field_left,'=', False)]
+             try:
+                 cast_type = True
+                 if field_type in type_cast:
+@@ -126,11 +124,13 @@
+                 self.right_text.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#ff6969"))
+                 self.right_text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#ff6969"))
+                 return {}
++
++            if operator in ['not ilike','<>', 'not in'] and field_type != 'boolean' and right_text:
++                false_value_domain = ['|', (field_left,'=', False)]
++
+             if operator in ['ilike','not ilike']:
+                 if field_type in ['integer','float','date','datetime','boolean']:
+                     operator = (operator == 'ilike') and '=' or '!='
+-                else:
+-                    right_text = '%' + right_text + '%'
+ 
+             if operator in ['<','>'] and field_type not in ['integer','float','date','datetime','boolean']:
+                     operator = '='
+
+
